@@ -244,6 +244,47 @@ namespace road {
     return boost::optional<Waypoint>{};
   }
 
+  boost::optional<Waypoint> Map::GetWaypoint(
+      RoadId road_id,
+      LaneId lane_id,
+      float s) const {
+
+    // define the waypoint with the known parameters
+    Waypoint waypoint;
+    waypoint.road_id = road_id;
+    waypoint.lane_id = lane_id;
+    waypoint.s = s;
+
+    // check the road
+    if (!_data.ContainsRoad(waypoint.road_id)) {
+      return boost::optional<Waypoint>{};
+    }
+    const Road &road = _data.GetRoad(waypoint.road_id);
+
+    // check the 's' distance
+    if (s > road.GetLength())
+    {
+      return boost::optional<Waypoint>{};
+    }
+
+    // check the section
+    bool lane_found = false;
+    for (auto &section : road.GetLaneSectionsAt(s)) {
+      if (section.ContainsLane(lane_id)) {
+        waypoint.section_id = section.GetId();
+        lane_found = true;
+        break;
+      }
+    }
+
+    // check the lane id
+    if (!lane_found) {
+      return boost::optional<Waypoint>{};
+    }
+
+    return waypoint;
+  }
+
   geom::Transform Map::ComputeTransform(Waypoint waypoint) const {
     const auto &road = _data.GetRoad(waypoint.road_id);
 
