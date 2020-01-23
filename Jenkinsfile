@@ -14,7 +14,7 @@ pipeline {
         stage('Logging') {
             steps {
                 sh 'echo $UE4_ROOT'
-                sh 'ls $UE4_ROOT/'
+                sh 'make CarlaUE4Editor'
             }
         }
     }
