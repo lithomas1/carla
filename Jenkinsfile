@@ -13,7 +13,7 @@ pipeline {
 
         stage('Logging') {
             steps {
-                sh 'echo UE4_ROOT'
+                sh 'echo $UE4_ROOT'
             }
         }
     }
