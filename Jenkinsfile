@@ -42,8 +42,25 @@ pipeline {
                 }
             }
         }
-    }
 
+        stage('Retrieve Content') {
+            steps {
+                sh './Update.sh'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'make package'
+                sh 'make package ARGS="--packages=AdditionalMaps --clean-intermediate"'
+            }
+            post {
+                always {
+                    archiveArtifacts 'Dist/*.tar.gz'
+                }
+            }
+        }
+    }
 
     post {
         always {
