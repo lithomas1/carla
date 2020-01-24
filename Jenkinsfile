@@ -11,13 +11,39 @@ pipeline {
 
     stages {
 
-        stage('Logging') {
+        stage('Setup') {
             steps {
-                sh 'echo $UE4_ROOT'
+                sh 'make setup'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'make LibCarla'
+                sh 'make PythonAPI'
                 sh 'make CarlaUE4Editor'
+                sh 'make examples'
+            }
+            post {
+                always {
+                    archiveArtifacts 'PythonAPI/carla/dist/*.egg'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'make check ARGS="--all --xml"'
+            }
+            post {
+                always {
+                    junit 'Build/test-results/*.xml'
+                    archiveArtifacts 'profiler.csv'
+                }
             }
         }
     }
+
 
     post {
         always {
