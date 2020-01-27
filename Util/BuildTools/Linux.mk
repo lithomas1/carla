@@ -131,6 +131,9 @@ ad-rss:
 deploy:
 	@${CARLA_BUILD_TOOLS_FOLDER}/Deploy.sh $(ARGS)
 
+deploy-for-testing:
+	@${CARLA_BUILD_TOOLS_FOLDER}/DeployForTesting.sh $(ARGS)
+
 pretty:
 	@${CARLA_BUILD_TOOLS_FOLDER}/Prettify.sh $(ARGS)
 

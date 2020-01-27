@@ -60,6 +60,12 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy for testing') {
+            steps {
+                sh 'make deploy-for-testing'
+            }
+        }
     }
 
     post {
