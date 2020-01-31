@@ -1,4 +1,6 @@
 ## latest
+  * Added support for new geometry: spiral
+  * Added support for closest waypoint search for all geometries.
   * New weather system: night time, fog, rain ripples, and now wind affects vegetation and rain (not car physics)
   * Fixed Low/Epic quality settings transition
   * Enabled Mesh distance fields
