@@ -1,4 +1,37 @@
 pipeline {
+    agent none
+    
+    stages {
+
+        stage('Setup1') {
+            agent { 
+                label 'slave ubuntu build'
+            }
+
+            steps {
+                sh 'echo Setup1'
+            }
+        }
+
+        stage('Setup2') {
+            agent { 
+                label 'slave ubuntu build2'
+            }
+
+            steps {
+                sh 'echo setup2'
+            }
+        }
+    }
+
+    post {
+        always {
+            deleteDir()
+        }
+    }
+}
+
+_pipeline {
     agent any
 
     environment {
