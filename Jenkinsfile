@@ -1,109 +1,110 @@
 pipeline {
     agent none
-    
-    stages {
 
-        stage('Setup1') {
-            agent { 
-                label 'slave ubuntu build'
-            }
-
-            steps {
-                sh 'echo Setup1'
-            }
-        }
-
-        stage('Setup2') {
-            agent { 
-                label 'slave ubuntu build2'
-            }
-
-            steps {
-                sh 'echo setup2'
-            }
-        }
-    }
-
-    post {
-        always {
-            deleteDir()
-        }
-    }
-}
-
-_pipeline {
-    agent any
-
-    environment {
+    environment 
+    {
         UE4_ROOT = '/home/jenkins/UnrealEngine_4.22'
     }
 
-    options {
+    options 
+    {
         buildDiscarder(logRotator(numToKeepStr: '3', artifactNumToKeepStr: '3'))
     }
+   
+    stages 
+    {
 
-    stages {
-
-        stage('Setup') {
-            steps {
+        stage('Setup') 
+        {
+            agent { label 'build' }
+            steps 
+            {
                 sh 'make setup'
             }
         }
 
-        stage('Build') {
-            steps {
+        stage('Build') 
+        {
+            agent { label 'build' }
+            steps 
+            {
                 sh 'make LibCarla'
                 sh 'make PythonAPI'
                 sh 'make CarlaUE4Editor'
                 sh 'make examples'
             }
-            post {
-                always {
+            post 
+            {
+                always 
+                {
                     archiveArtifacts 'PythonAPI/carla/dist/*.egg'
+                    stash includes: 'PythonAPI/carla/dist/*.egg', name: 'eggs'
                 }
             }
         }
 
-        stage('Unit Tests') {
-            steps {
+        stage('Unit Tests') 
+        {
+            agent { label 'build' }
+            steps 
+            {
                 sh 'make check ARGS="--all --xml"'
             }
-            post {
-                always {
+            post 
+            {
+                always 
+                {
                     junit 'Build/test-results/*.xml'
                     archiveArtifacts 'profiler.csv'
                 }
             }
         }
 
-        stage('Retrieve Content') {
-            steps {
+        stage('Retrieve Content') 
+        {
+            agent { label 'build' }
+            steps 
+            {
                 sh './Update.sh'
             }
         }
 
-        stage('Package') {
-            steps {
+        stage('Package') 
+        {
+            agent { label 'build' }
+            steps 
+            {
                 sh 'make package'
                 sh 'make package ARGS="--packages=AdditionalMaps --clean-intermediate"'
             }
             post {
                 always {
                     archiveArtifacts 'Dist/*.tar.gz'
+                    stash includes: 'Dist/CARLA*.tar.gz', name: 'carla_package'
                 }
             }
         }
 
-        stage('Deploy for testing') {
-            steps {
-                sh 'make deploy-for-testing'
+        stage('Smoke Tests') 
+        {
+            agent { label 'gpu' }
+            steps 
+            {
+                unstash name: 'eggs'
+                unstash name: 'carla_package'
+                sh 'tar -xvzf Dist/CARLA*.tar.gz'
+                sh 'DISPLAY= ./Dist/*/LinuxNoEditor/CarlaUE4.sh -opengl --carla-rpc-port=3654 --carla-streaming-port=0 -nosound > CarlaUE4.log &'
+                sh 'make smoke_tests ARGS="--xml"'
+                sh 'make run-examples ARGS="localhost 3654"'
+            }
+            post 
+            {
+                always 
+                {
+                    archiveArtifacts 'CarlaUE4.log'
+                    junit 'Build/test-results/smoke-tests-*.xml'
+                }
             }
         }
     }
-
 }
-    post {
-        always {
-            deleteDir()
-        }
-    }
