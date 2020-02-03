@@ -16,6 +16,7 @@ nav:
 - Building from source:
   - 'How to build on Linux': 'how_to_build_on_linux.md'
   - 'How to build on Windows': 'how_to_build_on_windows.md'
+  - 'Update CARLA': 'update_carla.md'
 - Advanced topics:
   - 'Python API reference': 'python_api.md'
   - 'C++ reference' : 'cpp_reference.md'
