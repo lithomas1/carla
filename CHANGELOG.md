@@ -2,6 +2,7 @@
   * Added support for new geometry: spiral
   * Added support for closest waypoint search for all geometries.
   * Added support for new geometry: poly3
+  * Added support for new geometry: paramPoly3
   * New weather system: night time, fog, rain ripples, and now wind affects vegetation and rain (not car physics)
   * Fixed Low/Epic quality settings transition
   * Enabled Mesh distance fields
