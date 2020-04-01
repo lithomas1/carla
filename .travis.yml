@@ -42,8 +42,9 @@ matrix:
         
     - env: TEST="MacOS Unit Tests"
       os: osx
+      python: 3.7
       before_install:
-        - brew install python ninja gcc@7 
+        - brew install ninja gcc@7 
       install:
         - pip3 install -q --user setuptools
         - pip3 install -q --user -r PythonAPI/test/requirements.txt
