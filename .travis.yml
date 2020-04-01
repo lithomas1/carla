@@ -1,14 +1,13 @@
 language: cpp
 compiler: clang
-
-os: linux
 dist: xenial
 sudo: false
 
 matrix:
   include:
 
-    - env: TEST="Unit Tests"
+    - env: TEST="Linux Unit Tests"
+      os: linux
       addons:
         apt:
           sources:
@@ -40,8 +39,27 @@ matrix:
         - make check ARGS="--all --gtest_args=--gtest_filter=-*_mt"
       after_failure:
         - tail --lines=2000 build.log
+        
+    - env: TEST="MacOS Unit Tests"
+      os: osx
+      before_install:
+        - brew install python ninja gcc@7 
+      install:
+        - pip3 install -q --user setuptools
+        - pip3 install -q --user -r PythonAPI/test/requirements.txt
+      script:
+        - while sleep 2m; do echo "still building..."; done &
+        - make setup >> build.log 2>&1
+        - make LibCarla >> build.log 2>&1
+        - make PythonAPI >> build.log 2>&1
+        - make examples >> build.log 2>&1
+        - kill %1
+        - make check ARGS="--all --gtest_args=--gtest_filter=-*_mt"
+      after_failure:
+        - tail --lines=2000 build.log
 
     - env: TEST="Pylint 2"
+      os: linux
       addons:
         apt:
           packages:
@@ -58,6 +76,7 @@ matrix:
         - pylint --disable=R,C --rcfile=PythonAPI/.pylintrc PythonAPI/**/*.py Util/BuildTools/*.py
 
     - env: TEST="Pylint 3"
+      os: linux
       addons:
         apt:
           packages:
@@ -76,6 +95,7 @@ matrix:
         - pylint --disable=R,C --rcfile=PythonAPI/.pylintrc PythonAPI/**/*.py Util/Docker/*.py Util/BuildTools/*.py
 
     - env: TEST="MkDocs"
+      os: linux
       install:
         - pip install -q --user -r PythonAPI/docs/requirements.txt
         - pip install -q --user mkdocs
